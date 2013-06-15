@@ -1,4 +1,4 @@
-Reverse SSH
+Forward SSH
 -----------
 
 The goal of this project is to provide a wrapper around ssh to allow a user to execute commands on their local host from a remote host.  This assumes that the user has ssh key forwarding via an ssh agent.  Key forwarding is essential for the prompt-less login back to the local host machine.
@@ -12,13 +12,13 @@ There are tools like [pbcopy/pbpaste](https://developer.apple.com/library/mac/do
 
 Read on...
 
-Goal of rssh
+Goal of fssh
 ------------
 
-The goal of rssh is to leverage ssh port forwarding to setup a reverse ssh connection and passes the essential parameters though environmental variables.  The environmental variables are critical to avoid port collisions with multiple sessions should the port numbers be hard coded.
+The goal of fssh is to leverage ssh port forwarding to setup a reverse ssh connection and passes the essential parameters though environmental variables.  The environmental variables are critical to avoid port collisions with multiple sessions should the port numbers be hard coded.
 
 	---------------------                   ------------------
-	| local host        | -- ssh + rssh --> | remote host    |
+	| local host        | -- ssh + fssh --> | remote host    |
 	|                   |                   |                |
 	| X11/Mac OS X GUI  | <-- ui_copy   --  | shell or tmux  |
 	|                   | --  ui_paste  --> |                |

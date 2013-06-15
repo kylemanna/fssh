@@ -7,15 +7,15 @@
 #
 # Goal of this is to reliably setup a ssh tunnel so that the remote host can
 # communicate with the local host.
-# rssh remote-host
+# fssh remote-host
 #
 # Write to the host UI's copy-paste buffer:
-# $ alias ui_copy='ssh -o "StrictHostKeyChecking=no" -p $LC_RSSH_PORT -l $LC_RSSH_USER localhost $LC_RSSH_COPY'
+# $ alias ui_copy='ssh -o "StrictHostKeyChecking=no" -p $LC_FSSH_PORT -l $LC_FSSH_USER localhost $LC_FSSH_COPY'
 # $ echo "boom" | ui_copy
 # 
 #
 # Read the host UI's copy-paste buffer:
-# $ alias ui_paste='ssh -o "StrictHostKeyChecking=no" -p $LC_RSSH_PORT -l $LC_RSSH_USER localhost $LC_RSSH_PASTE'
+# $ alias ui_paste='ssh -o "StrictHostKeyChecking=no" -p $LC_FSSH_PORT -l $LC_FSSH_USER localhost $LC_FSSH_PASTE'
 # $ ui_paste
 #
 
@@ -61,21 +61,21 @@ while [ $ret -eq 0 ]; do
 done
 
 # Start actual ssh command
-export LC_RSSH_USER=$USER
-export LC_RSSH_PORT=$PORT
-export LC_RSSH_PATH=$PATH
+export LC_FSSH_USER=$USER
+export LC_FSSH_PORT=$PORT
+export LC_FSSH_PATH=$PATH
 if [ "$(uname)" = "Darwin" ]; then
-   export LC_RSSH_COPY="reattach-to-user-namespace pbcopy"
-   export LC_RSSH_PASTE="reattach-to-user-namespace pbpaste"
+   export LC_FSSH_COPY="reattach-to-user-namespace pbcopy"
+   export LC_FSSH_PASTE="reattach-to-user-namespace pbpaste"
 else
-   export LC_RSSH_COPY="DISPLAY=$DISPLAY xclip -i"
-   export LC_RSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
+   export LC_FSSH_COPY="DISPLAY=$DISPLAY xclip -i"
+   export LC_FSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
 fi
-echo ">> Reverse SSH forwarding via $HOST:$PORT to $LC_RSSH_USER@$HOSTNAME"
+echo ">> Reverse SSH forwarding via $HOST:$PORT to $LC_FSSH_USER@$HOSTNAME"
 ssh -R $PORT:localhost:22 \
-   -o SendEnv=LC_RSSH_USER \
-   -o SendEnv=LC_RSSH_PORT \
-   -o SendEnv=LC_RSSH_COPY \
-   -o SendEnv=LC_RSSH_PASTE \
-   -o SendEnv=LC_RSSH_PATH \
+   -o SendEnv=LC_FSSH_USER \
+   -o SendEnv=LC_FSSH_PORT \
+   -o SendEnv=LC_FSSH_COPY \
+   -o SendEnv=LC_FSSH_PASTE \
+   -o SendEnv=LC_FSSH_PATH \
    $@

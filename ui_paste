@@ -6,16 +6,16 @@
 # License: MIT -> http://opensource.org/licenses/MIT
 #
 
-# Check if invoked from an rssh session
-if [ -n "$LC_RSSH_PORT" -a -n "$LC_RSSH_USER" -a -n "$LC_RSSH_PASTE" ]; then
+# Check if invoked from an fssh session
+if [ -n "$LC_FSSH_PORT" -a -n "$LC_FSSH_USER" -a -n "$LC_FSSH_PASTE" ]; then
 	# Connect to the remote host and issue copy command
 	ssh \
 		-o "StrictHostKeyChecking=no" \
 		-o "VisualHostKey=no" \
-		-p $LC_RSSH_PORT \
-		-l $LC_RSSH_USER \
+		-p $LC_FSSH_PORT \
+		-l $LC_FSSH_USER \
 		localhost \
-		PATH=$LC_RSSH_PATH $LC_RSSH_PASTE
+		PATH=$LC_FSSH_PATH $LC_FSSH_PASTE
 else
 	# Assume issued locally, no ssh
 	if [ "$(uname)" = "Darwin" ]; then
