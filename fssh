@@ -49,6 +49,8 @@ PORT=$(($RANDOM + 10000))
 export LC_FSSH_USER=$USER
 export LC_FSSH_PORT=$PORT
 export LC_FSSH_PATH=$PATH
+export LC_FSSH_COPY_ARGS="-o HostKeyAlias=$HOSTNAME"
+export LC_FSSH_PASTE_ARGS="-o HostKeyAlias=$HOSTNAME"
 
 if [ "$(uname)" = "Darwin" ]; then
    export LC_FSSH_COPY="reattach-to-user-namespace pbcopy"
@@ -58,7 +60,7 @@ else
    export LC_FSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
    # xclip -i needs to be forked for the duration that it is the source
    # of the paste buffer due to X11 design.
-   export LC_FSSH_COPY_ARGS="-f"
+   export LC_FSSH_COPY_ARGS="${LC_FSSH_COPY_ARGS} -f"
 fi
 
 # Start actual ssh command
