@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 #
 # Paste from GUI copy-paste buffer to stdout
 #
@@ -6,21 +6,38 @@
 # License: MIT -> http://opensource.org/licenses/MIT
 #
 
-# Check if invoked from an fssh session
-if [ -n "$LC_FSSH_PORT" -a -n "$LC_FSSH_USER" -a -n "$LC_FSSH_PASTE" ]; then
-	# Connect to the remote host and issue copy command
-	ssh \
-		$LC_FSSH_PASTE_ARGS \
-		-o "VisualHostKey=no" \
-		-p $LC_FSSH_PORT \
-		-l $LC_FSSH_USER \
-		localhost \
-		PATH=$LC_FSSH_PATH $LC_FSSH_PASTE
-else
-	# Assume issued locally, no ssh
-	if [ "$(uname)" = "Darwin" ]; then
-	   reattach-to-user-namespace pbpaste
-	else
-	   xclip -o
-	fi
-fi
+import os
+import subprocess
+import sys
+
+if __name__ == '__main__':
+
+   # Check if invoked from an fssh session
+   if ('LC_FSSH_PORT' in os.environ
+        and 'LC_FSSH_USER' in os.environ
+        and 'LC_FSSH_PASTE' in os.environ):
+
+      # Connect to the remote host and issue copy command
+      argv = ['ssh',
+              os.environ.get('LC_FSSH_PASTE_ARGS', ''),
+              '-o', 'VisualHostKey=no',
+              '-p', os.environ['LC_FSSH_PORT'],
+              '-l', os.environ['LC_FSSH_USER'],
+              'localhost',
+              'PATH={0}'.format(os.environ.get('LC_FSSH_PATH', '')),
+              '{0}'.format(os.environ['LC_FSSH_PASTE']) ]
+
+      #print "argv = {}".format(argv)
+
+      p = subprocess.Popen(argv, stdout=subprocess.PIPE)
+
+      result = p.communicate()
+
+      print result[0]
+
+   else:
+      # Assume issued locally, no ssh
+      if sys.platform.startswith('darwin'):
+         subprocess.call(['reattach-to-user-namespace', 'pbpaste'])
+      else:
+         subprocess.call(['xclip', '-o'])

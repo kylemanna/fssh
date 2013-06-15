@@ -58,9 +58,6 @@ if [ "$(uname)" = "Darwin" ]; then
 else
    export LC_FSSH_COPY="DISPLAY=$DISPLAY xclip -i"
    export LC_FSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
-   # xclip -i needs to be forked for the duration that it is the source
-   # of the paste buffer due to X11 design.
-   export LC_FSSH_COPY_ARGS="${LC_FSSH_COPY_ARGS} -f"
 fi
 
 # Start actual ssh command

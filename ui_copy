@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 #
 # Copy from stdin to GUI copy-paste buffer
 #
@@ -6,21 +6,47 @@
 # License: MIT -> http://opensource.org/licenses/MIT
 #
 
-# Check if invoked from an fssh session
-if [ -n "$LC_FSSH_PORT" -a -n "$LC_FSSH_USER" -a -n "$LC_FSSH_COPY" ]; then
-	# Connect to the remote host and issue copy command
-	ssh \
-		$LC_FSSH_COPY_ARGS \
-		-o "VisualHostKey=no" \
-		-p $LC_FSSH_PORT \
-		-l $LC_FSSH_USER \
-		localhost \
-		PATH=$LC_FSSH_PATH $LC_FSSH_COPY
-else
-	# Assume issued locally, no ssh
-	if [ "$(uname)" = "Darwin" ]; then
-	   reattach-to-user-namespace pbcopy
-	else
-	   xclip -i
-	fi
-fi
+import os
+import subprocess
+import sys
+
+if __name__ == '__main__':
+
+   # Check if invoked from an fssh session
+   if ('LC_FSSH_PORT' in os.environ
+        and 'LC_FSSH_USER' in os.environ
+        and 'LC_FSSH_COPY' in os.environ):
+
+      # Read the entire stdin and buffer it
+      stdin = ''.join(sys.stdin.readlines())
+
+      # Connect to the remote host and issue copy command
+      argv = ['ssh',
+              os.environ.get('LC_FSSH_COPY_ARGS', ''),
+              '-o', 'VisualHostKey=no',
+              '-p', os.environ['LC_FSSH_PORT'],
+              '-l', os.environ['LC_FSSH_USER'],
+              'localhost',
+              'PATH={0}'.format(os.environ.get('LC_FSSH_PATH', '')),
+              '{0}'.format(os.environ['LC_FSSH_COPY']) ]
+
+      #print "argv = {}".format(argv)
+
+      p = subprocess.Popen(argv, stdin=subprocess.PIPE)
+
+      # Fork and wait for the process to terminate on its own
+      if os.fork():
+         # Parent returns immediately
+         os._exit(0)
+
+      result = p.communicate(input=stdin)
+
+      # Add stdout and stder to Popen() call to see result
+      #print result
+
+   else:
+      # Assume issued locally, no ssh
+      if sys.platform.startswith('darwin'):
+         subprocess.call(['reattach-to-user-namespace', 'pbcopy'])
+      else:
+         subprocess.call(['xclip', '-i'])
