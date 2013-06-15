@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# Paste from GUI copy-paste buffer to stdout
+#
+# Author: Kyle Manna -> http://blog.kylemanna.com
+# License: MIT -> http://opensource.org/licenses/MIT
+#
+
+# Check if invoked from an rssh session
+if [ -n "$LC_RSSH_PORT" -a -n "$LC_RSSH_USER" -a -n "$LC_RSSH_PASTE" ]; then
+	# Connect to the remote host and issue copy command
+	ssh \
+		-o "StrictHostKeyChecking=no" \
+		-p $LC_RSSH_PORT \
+		-l $LC_RSSH_USER \
+		localhost \
+		$LC_RSSH_PASTE
+else
+	# Assume issued locally, no ssh
+	if [ "$(uname)" = "Darwin" ]; then
+	   reattach-to-user-namespace pbpaste
+	else
+	   xclip -o
+	fi
+fi

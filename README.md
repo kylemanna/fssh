@@ -23,3 +23,9 @@ The goal of rssh is to leverage ssh port forwarding to setup a reverse ssh conne
 	| X11/Mac OS X GUI  | <-- ui_copy   --  | shell or tmux  |
 	|                   | --  ui_paste  --> |                |
 	---------------------                   ------------------
+
+Utilities
+---------
+
+* ui_copy - copy data from stdin to the local or remote GUI copy-paste buffer
+* ui_paste - copy data from the local or remote GUI copy-paste buffer to stdout
