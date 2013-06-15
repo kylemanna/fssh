@@ -45,7 +45,7 @@ HOST=$1
 # Find an unused port on the remote host
 ret=0
 while [ $ret -eq 0 ]; do
-   netstat=$(ssh $HOST netstat -tln)
+   netstat=$(ssh -o "VisualHostKey=no" $HOST netstat -tln)
    ret2=$?
    if [ $ret2 -ne 0 ]; then
       echo ">> Failed to query remote host, ret = $ret2."
