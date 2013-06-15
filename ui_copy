@@ -11,6 +11,7 @@ if [ -n "$LC_RSSH_PORT" -a -n "$LC_RSSH_USER" -a -n "$LC_RSSH_COPY" ]; then
 	# Connect to the remote host and issue copy command
 	ssh \
 		-o "StrictHostKeyChecking=no" \
+		-o "VisualHostKey=no" \
 		-p $LC_RSSH_PORT \
 		-l $LC_RSSH_USER \
 		localhost \
