@@ -8,8 +8,10 @@
 
 # Check if invoked from an fssh session
 if [ -n "$LC_FSSH_PORT" -a -n "$LC_FSSH_USER" -a -n "$LC_FSSH_COPY" ]; then
+
 	# Connect to the remote host and issue copy command
 	ssh \
+		$LC_FSSH_COPY_ARGS \
 		-o "StrictHostKeyChecking=no" \
 		-o "VisualHostKey=no" \
 		-p $LC_FSSH_PORT \

@@ -46,24 +46,30 @@ HOST=$1
 # guessed wrong.  SSH will present an error message and exit.
 PORT=$(($RANDOM + 10000))
 
-# Start actual ssh command
 export LC_FSSH_USER=$USER
 export LC_FSSH_PORT=$PORT
 export LC_FSSH_PATH=$PATH
+
 if [ "$(uname)" = "Darwin" ]; then
    export LC_FSSH_COPY="reattach-to-user-namespace pbcopy"
    export LC_FSSH_PASTE="reattach-to-user-namespace pbpaste"
 else
    export LC_FSSH_COPY="DISPLAY=$DISPLAY xclip -i"
    export LC_FSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
+   # xclip -i needs to be forked for the duration that it is the source
+   # of the paste buffer due to X11 design.
+   export LC_FSSH_COPY_ARGS="-f"
 fi
 
+# Start actual ssh command
 echo ">> Attempting reverse SSH forwarding via $HOST:$PORT to $LC_FSSH_USER@$HOSTNAME"
 ssh -R $PORT:localhost:22 \
    -o ExitOnForwardFailure=yes \
    -o SendEnv=LC_FSSH_USER \
    -o SendEnv=LC_FSSH_PORT \
    -o SendEnv=LC_FSSH_COPY \
+   -o SendEnv=LC_FSSH_COPY_ARGS \
    -o SendEnv=LC_FSSH_PASTE \
+   -o SendEnv=LC_FSSH_PASTE_ARGS \
    -o SendEnv=LC_FSSH_PATH \
    $@
