@@ -14,7 +14,7 @@ if [ -n "$LC_RSSH_PORT" -a -n "$LC_RSSH_USER" -a -n "$LC_RSSH_COPY" ]; then
 		-p $LC_RSSH_PORT \
 		-l $LC_RSSH_USER \
 		localhost \
-		$LC_RSSH_COPY
+		PATH=$LC_RSSH_PATH $LC_RSSH_COPY
 else
 	# Assume issued locally, no ssh
 	if [ "$(uname)" = "Darwin" ]; then
