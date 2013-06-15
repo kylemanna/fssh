@@ -68,8 +68,8 @@ if [ "$(uname)" = "Darwin" ]; then
    export LC_RSSH_COPY="reattach-to-user-namespace pbcopy"
    export LC_RSSH_PASTE="reattach-to-user-namespace pbpaste"
 else
-   export LC_RSSH_COPY="xclip -i"
-   export LC_RSSH_PASTE="xclip -o"
+   export LC_RSSH_COPY="DISPLAY=$DISPLAY xclip -i"
+   export LC_RSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
 fi
 echo ">> Reverse SSH forwarding via $HOST:$PORT to $LC_RSSH_USER@$HOSTNAME"
 ssh -R $PORT:localhost:22 \
