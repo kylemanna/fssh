@@ -42,23 +42,9 @@ shift $(($OPTIND - 1))
 
 HOST=$1
 
-# Find an unused port on the remote host
-ret=0
-while [ $ret -eq 0 ]; do
-   netstat=$(ssh -o "VisualHostKey=no" $HOST netstat -tln)
-   ret2=$?
-   if [ $ret2 -ne 0 ]; then
-      echo ">> Failed to query remote host, ret = $ret2."
-      exit 1
-   fi
-   # Ghetto:
-   PORT=$(($RANDOM + 10000))
-   echo $netstat | awk '{print $4}' | awk -F: '{print $NF}' | grep -q ^$PORT\$
-   ret=$?
-   if [ $ret -eq 0 ]; then
-      echo ">> Port collision $HOST:$PORT, trying again."
-   fi
-done
+# Guess an unused port on the remote host, use ExitOnForwardFailure if
+# guessed wrong.  SSH will present an error message and exit.
+PORT=$(($RANDOM + 10000))
 
 # Start actual ssh command
 export LC_FSSH_USER=$USER
@@ -71,8 +57,10 @@ else
    export LC_FSSH_COPY="DISPLAY=$DISPLAY xclip -i"
    export LC_FSSH_PASTE="DISPLAY=$DISPLAY xclip -o"
 fi
-echo ">> Reverse SSH forwarding via $HOST:$PORT to $LC_FSSH_USER@$HOSTNAME"
+
+echo ">> Attempting reverse SSH forwarding via $HOST:$PORT to $LC_FSSH_USER@$HOSTNAME"
 ssh -R $PORT:localhost:22 \
+   -o ExitOnForwardFailure=yes \
    -o SendEnv=LC_FSSH_USER \
    -o SendEnv=LC_FSSH_PORT \
    -o SendEnv=LC_FSSH_COPY \
