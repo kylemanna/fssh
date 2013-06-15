@@ -26,6 +26,6 @@ The goal of fssh is to leverage ssh port forwarding to setup a reverse ssh conne
 
 Utilities
 ---------
-
-* ui_copy - copy data from stdin to the local or remote GUI copy-paste buffer
-* ui_paste - copy data from the local or remote GUI copy-paste buffer to stdout
+* <code>fssh</code> - create a forwarding ssh connection for use with ui_copy and ui_paste.  In addition to creating the port forward, the ssh operation should operate transparently.
+* <code>ui_copy</code> - copy data from stdin to the local or remote GUI copy-paste buffer
+* <code>ui_paste</code> - copy data from the local or remote GUI copy-paste buffer to stdout
