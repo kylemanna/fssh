@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
       result = p.communicate()
 
-      print result[0]
+      sys.stdout.write(result[0])
 
    else:
       # Assume issued locally, no ssh
