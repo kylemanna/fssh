@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+# Reverse SSH wrapper
+#
+# Author: Kyle Manna -> http://blog.kylemanna.com
+# License: MIT -> http://opensource.org/licenses/MIT
+#
+# Goal of this is to reliably setup a ssh tunnel so that the remote host can
+# communicate with the local host.
+# rssh remote-host
+#
+# Write to the host UI's copy-paste buffer:
+# $ alias ui_copy='ssh -o "StrictHostKeyChecking=no" -p $LC_RSSH_PORT -l $LC_RSSH_USER localhost $LC_RSSH_COPY'
+# $ echo "boom" | ui_copy
+# 
+#
+# Read the host UI's copy-paste buffer:
+# $ alias ui_paste='ssh -o "StrictHostKeyChecking=no" -p $LC_RSSH_PORT -l $LC_RSSH_USER localhost $LC_RSSH_PASTE'
+# $ ui_paste
+#
+
+
+# Attempt to parse the stardard ssh args so we can find the hostname
+#
+# ssh [-1246AaCfgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec] [-D [bind_address:]port] [-e escape_char]
+#     [-F configfile] [-I pkcs11] [-i identity_file] [-L [bind_address:]port:host:hostport] [-l login_name]
+#     [-m mac_spec] [-O ctl_cmd] [-o option] [-p port] [-R [bind_address:]port:host:hostport] [-S ctl_path]
+#     [-W host:port] [-w local_tun[:remote_tun]] [user@]hostname [command]
+
+options=":1246AaCfgKkMNnqsTtVvXxYyb:c:D:e:F:I:i:L:l:m:O:o:p:R:S:W:w:"
+
+while getopts $options option; do
+   # nop, need to increment $OPTIND though
+   continue
+   #case $option in
+      #\? ) echo "Unknown option: -$OPTARG" >&2 ;;
+      #:  ) echo "Missing option argument for -$OPTARG" >&2 ;;
+      #*  ) echo "Unimplimented option: -$option" >&2 ;;
+   #esac
+done
+shift $(($OPTIND - 1))
+
+HOST=$1
+
+# Find an unused port on the remote host
+ret=0
+while [ $ret -eq 0 ]; do
+   netstat=$(ssh $HOST netstat -tln)
+   ret2=$?
+   if [ $ret2 -ne 0 ]; then
+      echo ">> Failed to query remote host, ret = $ret2."
+      exit 1
+   fi
+   # Ghetto:
+   PORT=$(($RANDOM + 10000))
+   echo $netstat | awk '{print $4}' | awk -F: '{print $NF}' | grep -q ^$PORT\$
+   ret=$?
+   if [ $ret -eq 0 ]; then
+      echo ">> Port collision $HOST:$PORT, trying again."
+   fi
+done
+
+# Start actual ssh command
+export LC_RSSH_USER=$USER
+export LC_RSSH_PORT=$PORT
+if [ "$(uname)" = "Darwin" ]; then
+   export LC_RSSH_COPY="reattach-to-user-namespace pbcopy"
+   export LC_RSSH_PASTE="reattach-to-user-namespace pbpaste"
+else
+   export LC_RSSH_COPY="xclip -i"
+   export LC_RSSH_PASTE="xclip -o"
+fi
+echo ">> Reverse SSH forwarding via $HOST:$PORT to $LC_RSSH_USER@$HOSTNAME"
+ssh -R $PORT:localhost:22 \
+   -o SendEnv=LC_RSSH_USER \
+   -o SendEnv=LC_RSSH_PORT \
+   -o SendEnv=LC_RSSH_COPY \
+   -o SendEnv=LC_RSSH_PASTE \
+   $@
