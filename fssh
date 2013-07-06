@@ -19,6 +19,7 @@
 # $ ui_paste
 #
 
+ARGS="$@"
 
 # Attempt to parse the stardard ssh args so we can find the hostname
 #
@@ -71,4 +72,4 @@ ssh -R $PORT:localhost:22 \
    -o SendEnv=LC_FSSH_PASTE \
    -o SendEnv=LC_FSSH_PASTE_ARGS \
    -o SendEnv=LC_FSSH_PATH \
-   $@
+   $ARGS
