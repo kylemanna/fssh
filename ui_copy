@@ -12,23 +12,52 @@ import sys
 
 if __name__ == '__main__':
 
+   copy_args = ''
+   port = ''
+   user = ''
+   path = ''
+   copy = ''
+
+   # Check if invoked from an tmux+fssh session
+   if 'TMUX' in os.environ:
+      out = subprocess.check_output(['tmux', 'showenv'])
+
+      for line in out.splitlines():
+         (k, s, v) = line.partition('=')
+
+         if k == 'LC_FSSH_COPY_ARGS': copy_args = v
+         elif k == 'LC_FSSH_PORT': port = v
+         elif k == 'LC_FSSH_USER': user = v
+         elif k == 'LC_FSSH_PATH': path = v
+         elif k == 'LC_FSSH_COPY': copy = v
+         #else: print 'Unknown key: ', k
+
    # Check if invoked from an fssh session
-   if ('LC_FSSH_PORT' in os.environ
+   elif ('LC_FSSH_PORT' in os.environ
         and 'LC_FSSH_USER' in os.environ
         and 'LC_FSSH_COPY' in os.environ):
+
+      copy_args = os.environ.get('LC_FSSH_COPY_ARGS', '')
+      port = os.environ['LC_FSSH_PORT']
+      user = os.environ['LC_FSSH_USER']
+      path = os.environ.get('LC_FSSH_PATH', '')
+      copy = os.environ['LC_FSSH_COPY']
+
+
+   if port and user and copy:
 
       # Read the entire stdin and buffer it
       stdin = ''.join(sys.stdin.readlines())
 
       # Connect to the remote host and issue copy command
       argv = ['ssh',
-              os.environ.get('LC_FSSH_COPY_ARGS', ''),
+              copy_args,
               '-o', 'VisualHostKey=no',
-              '-p', os.environ['LC_FSSH_PORT'],
-              '-l', os.environ['LC_FSSH_USER'],
+              '-p', port,
+              '-l', user,
               'localhost',
-              'PATH={0}'.format(os.environ.get('LC_FSSH_PATH', '')),
-              '{0}'.format(os.environ['LC_FSSH_COPY']) ]
+              'PATH=' + path,
+              copy]
 
       #print "argv = {}".format(argv)
 
