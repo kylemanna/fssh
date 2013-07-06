@@ -30,6 +30,7 @@ if __name__ == '__main__':
          elif k == 'LC_FSSH_USER': user = v
          elif k == 'LC_FSSH_PATH': path = v
          elif k == 'LC_FSSH_COPY': copy = v
+         elif k == 'SSH_AUTH_SOCK': os.environ['SSH_AUTH_SOCK'] = v
          #else: print 'Unknown key: ', k
 
    # Check if invoked from an fssh session
