@@ -63,7 +63,7 @@ fi
 
 # Start actual ssh command
 echo ">> Attempting reverse SSH forwarding via $HOST:$PORT to $LC_FSSH_USER@$HOSTNAME"
-local ssh=$(type -fp ssh)
+ssh=$(type -fp ssh)
 $ssh -R $PORT:localhost:22 \
    -o ExitOnForwardFailure=yes \
    -o SendEnv=LC_FSSH_USER \
